@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Person-Transaction</title>
+    <link rel="stylesheet" href="./styles/styles.css">
+</head>
+<body>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a href="/"><span class="app_name">Banking System</span></a>
+    </header>
+    <div class="container">
+        <h1 class="user_transaction_head">Loading ....</h1>
+        <div class="result">
+            <table class="transactions">
+                <tr>
+                  <th>Transaction id</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Amount</th>
+                  <th>Timestamp</th>
+                </tr>
+                
+                
+              </table>
+        </div>
+        
+    </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+
+    <script>
+       function getID(){
+        const uri=window.location.href;
+        return uri.substr(uri.indexOf('#')+1);
+       }
+
+       async function getTransaction(){
+        try{
+            const r = await axios.get(`https://bankingserver.herokuapp.com/transaction/${getID()}`);
+            if(r.status===200){
+                console.log(r.data);
+                console.log(r.data);
+                document.title = r.data.user+' Transactions';
+                document.querySelector('.user_transaction_head').textContent = r.data.user+' Transactions';
+                if(r.data.userTransaction.length>0){
+                    r.data.userTransaction.map((item)=>{
+                        document.querySelector('table').innerHTML+=`
+                        <tr>
+                        <td>${item._id}</td>
+                        <td>${item.from.name}</td>
+                        <td>${item.to.name}</td>
+                        <td>${item.amount}</td>
+                        <td>${new Date(`${item.timestamp}`)}</td>
+                        </tr>
+                        `
+                    })
+                }
+                else{
+                    document.querySelector('.container').innerHTML='<h1>No Transaction found for this ID</h1>';
+                }
+            }
+        }
+        catch(e){
+            if(e.response && e.response.data){
+                console.error(e.response.data);
+            }
+        }
+       }
+
+       getTransaction();
+    </script>
+</body>
+</html>
